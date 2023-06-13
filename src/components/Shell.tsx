@@ -66,6 +66,12 @@ export default function Shell({ children }: Props) {
           }}
         >
           <NavLink
+            active={router.route === '/'}
+            label="Home"
+            component="a"
+            href="/"
+          />
+          <NavLink
             active={router.route === '/things'}
             label="Things"
             component="a"
