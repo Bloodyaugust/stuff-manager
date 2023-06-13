@@ -62,7 +62,7 @@ export default function Shell({ children }: Props) {
         <Navbar
           hidden={navHidden}
           width={{
-            sm: 300,
+            sm: navHidden ? 50 : 300,
           }}
         >
           <NavLink
