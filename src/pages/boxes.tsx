@@ -1,9 +1,19 @@
 import Shell from '@/components/Shell';
-import { createBox, getBoxes, patchBox } from '@/lib/box/queries';
+import { createBox, deleteBox, getBoxes, patchBox } from '@/lib/box/queries';
 import { getPlaces } from '@/lib/place/queries';
 import queryClient from '@/lib/query';
-import { Autocomplete, Button, Group, Input, Stack, Text } from '@mantine/core';
+import {
+  ActionIcon,
+  Autocomplete,
+  Button,
+  Group,
+  Input,
+  Popover,
+  Stack,
+  Text,
+} from '@mantine/core';
 import { Box, Place } from '@prisma/client';
+import { IconCheck, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import Head from 'next/head';
 import { useState } from 'react';
@@ -28,6 +38,12 @@ export default function Boxes() {
   });
   const { mutate: mutatePatchBox } = useMutation({
     mutationFn: patchBox,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['boxes'] });
+    },
+  });
+  const { mutate: mutateDeleteBox } = useMutation({
+    mutationFn: deleteBox,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['boxes'] });
     },
@@ -78,6 +94,20 @@ export default function Boxes() {
                       mutatePatchBox({ id: box.id, placeId: place.id })
                     }
                   />
+                  <Popover position="bottom" withArrow>
+                    <Popover.Target>
+                      <ActionIcon>
+                        <IconTrash color="red" />
+                      </ActionIcon>
+                    </Popover.Target>
+                    <Popover.Dropdown>
+                      <ActionIcon
+                        onClick={() => mutateDeleteBox({ id: box.id })}
+                      >
+                        <IconCheck color="red" />
+                      </ActionIcon>
+                    </Popover.Dropdown>
+                  </Popover>
                 </Group>
               ))}
             </Stack>

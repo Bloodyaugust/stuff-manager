@@ -54,4 +54,12 @@ async function patchBox({
   return response.json();
 }
 
-export { createBox, getBoxes, patchBox };
+async function deleteBox({ id }: { id: string }) {
+  const response = await fetch(`/api/box?id=${id}`, {
+    method: 'DELETE',
+  });
+
+  return response.json();
+}
+
+export { createBox, deleteBox, getBoxes, patchBox };

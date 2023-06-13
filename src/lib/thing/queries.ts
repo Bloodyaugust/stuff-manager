@@ -48,4 +48,12 @@ async function patchThing({
   return response.json();
 }
 
-export { createThing, getThings, patchThing };
+async function deleteThing({ id }: { id: string }) {
+  const response = await fetch(`/api/thing?id=${id}`, {
+    method: 'DELETE',
+  });
+
+  return response.json();
+}
+
+export { createThing, deleteThing, getThings, patchThing };

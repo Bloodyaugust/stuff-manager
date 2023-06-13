@@ -23,4 +23,12 @@ async function getPlaces() {
   return response.json();
 }
 
-export { createPlace, getPlaces };
+async function deletePlace({ id }: { id: string }) {
+  const response = await fetch(`/api/place?id=${id}`, {
+    method: 'DELETE',
+  });
+
+  return response.json();
+}
+
+export { createPlace, deletePlace, getPlaces };

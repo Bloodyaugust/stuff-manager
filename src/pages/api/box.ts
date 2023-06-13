@@ -71,7 +71,30 @@ export default async function handler(
 
       return;
     }
+
+    if (req.method === 'DELETE') {
+      const { id }: { id: string } = req.query as { id: string };
+      const deletingBox = await prisma.box.findFirst({
+        where: {
+          id,
+          createdBy: account.id,
+        },
+      });
+
+      if (deletingBox) {
+        res.status(200).json([
+          await prisma.box.delete({
+            where: { id: id },
+          }),
+        ]);
+      } else {
+        res.status(404).json({ message: 'Could not find box' });
+      }
+
+      return;
+    }
   } catch (e) {
+    console.error(e);
     res.status(500).json({ message: JSON.stringify(e) });
     return;
   }
