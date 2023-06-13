@@ -40,7 +40,16 @@ export default function Shell({ children }: Props) {
                 {router.route.replace('/', '')}
               </Title>
               {!user && (
-                <Button onClick={() => signIn('discord', { callbackUrl: '/' })}>
+                <Button
+                  onClick={() =>
+                    signIn('discord', {
+                      callbackUrl:
+                        process.env.NODE_ENV === 'production'
+                          ? 'https://stuff-manager.up.railway.app/'
+                          : '/',
+                    })
+                  }
+                >
                   Sign In
                 </Button>
               )}
