@@ -12,6 +12,10 @@ import { useMutation } from '@tanstack/react-query';
 import Head from 'next/head';
 import { useState } from 'react';
 import { search } from '@/lib/search/queries';
+import ThingCard from '@/components/ThingCard';
+import { Box, Place, Thing } from '@prisma/client';
+import BoxCard from '@/components/BoxCard';
+import PlaceCard from '@/components/PlaceCard';
 
 export default function Home() {
   const [searchString, setSearchString] = useState<string>('');
@@ -56,8 +60,8 @@ export default function Home() {
                     </Accordion.Control>
                     <Accordion.Panel>
                       <Stack>
-                        {things.map((thing: any) => (
-                          <Text key={thing.id}>{thing.name}</Text>
+                        {things.map((thing: Thing) => (
+                          <ThingCard key={thing.id} thing={thing} />
                         ))}
                       </Stack>
                     </Accordion.Panel>
@@ -70,8 +74,8 @@ export default function Home() {
                     </Accordion.Control>
                     <Accordion.Panel>
                       <Stack>
-                        {boxes.map((box: any) => (
-                          <Text key={box.id}>{box.name}</Text>
+                        {boxes.map((box: Box) => (
+                          <BoxCard key={box.id} box={box} />
                         ))}
                       </Stack>
                     </Accordion.Panel>
@@ -84,8 +88,8 @@ export default function Home() {
                     </Accordion.Control>
                     <Accordion.Panel>
                       <Stack>
-                        {places.map((place: any) => (
-                          <Text key={place.id}>{place.name}</Text>
+                        {places.map((place: Place) => (
+                          <PlaceCard key={place.id} place={place} />
                         ))}
                       </Stack>
                     </Accordion.Panel>

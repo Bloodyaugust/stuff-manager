@@ -1,17 +1,9 @@
+import PlaceCard from '@/components/PlaceCard';
 import Shell from '@/components/Shell';
-import { createPlace, deletePlace, getPlaces } from '@/lib/place/queries';
+import { createPlace, getPlaces } from '@/lib/place/queries';
 import queryClient from '@/lib/query';
-import {
-  ActionIcon,
-  Button,
-  Group,
-  Input,
-  Popover,
-  Stack,
-  Text,
-} from '@mantine/core';
+import { Button, Group, Input, Skeleton, Stack } from '@mantine/core';
 import { Place } from '@prisma/client';
-import { IconCheck, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import Head from 'next/head';
 import { useState } from 'react';
@@ -28,12 +20,6 @@ export default function Places() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['places'] });
       setNewPlaceName('');
-    },
-  });
-  const { mutate: mutateDeletePlace } = useMutation({
-    mutationFn: deletePlace,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['places'] });
     },
   });
 
@@ -61,28 +47,15 @@ export default function Places() {
                 Create Place
               </Button>
             </Group>
-            <Stack>
-              {places?.map((place) => (
-                <Group key={place.id}>
-                  <Text>{place.name}</Text>
-
-                  <Popover position="bottom" withArrow>
-                    <Popover.Target>
-                      <ActionIcon>
-                        <IconTrash color="red" />
-                      </ActionIcon>
-                    </Popover.Target>
-                    <Popover.Dropdown>
-                      <ActionIcon
-                        onClick={() => mutateDeletePlace({ id: place.id })}
-                      >
-                        <IconCheck color="red" />
-                      </ActionIcon>
-                    </Popover.Dropdown>
-                  </Popover>
-                </Group>
-              ))}
-            </Stack>
+            {!places?.length ? (
+              <Skeleton height={50} />
+            ) : (
+              <Stack>
+                {places?.map((place) => (
+                  <PlaceCard key={place.id} place={place} />
+                ))}
+              </Stack>
+            )}
           </Stack>
         </Shell>
       </main>

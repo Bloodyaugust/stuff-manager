@@ -1,28 +1,14 @@
+import BoxCard from '@/components/BoxCard';
 import Shell from '@/components/Shell';
-import { createBox, deleteBox, getBoxes, patchBox } from '@/lib/box/queries';
-import { getPlaces } from '@/lib/place/queries';
+import { createBox, getBoxes } from '@/lib/box/queries';
 import queryClient from '@/lib/query';
-import {
-  ActionIcon,
-  Autocomplete,
-  Button,
-  Group,
-  Input,
-  Popover,
-  Stack,
-  Text,
-} from '@mantine/core';
-import { Box, Place } from '@prisma/client';
-import { IconCheck, IconTrash } from '@tabler/icons-react';
+import { Button, Group, Input, Skeleton, Stack } from '@mantine/core';
+import { Box } from '@prisma/client';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import Head from 'next/head';
 import { useState } from 'react';
 
 export default function Boxes() {
-  const { data: places }: { data: Place[] | undefined } = useQuery({
-    queryKey: ['places'],
-    queryFn: getPlaces,
-  });
   const { data: boxes }: { data: Box[] | undefined } = useQuery({
     queryKey: ['boxes'],
     queryFn: getBoxes,
@@ -34,18 +20,6 @@ export default function Boxes() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['boxes'] });
       setNewBoxName('');
-    },
-  });
-  const { mutate: mutatePatchBox } = useMutation({
-    mutationFn: patchBox,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['boxes'] });
-    },
-  });
-  const { mutate: mutateDeleteBox } = useMutation({
-    mutationFn: deleteBox,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['boxes'] });
     },
   });
 
@@ -73,44 +47,15 @@ export default function Boxes() {
                 Create Box
               </Button>
             </Group>
-            <Stack>
-              {boxes?.map((box) => (
-                <Group key={box.id} align="end" position="apart">
-                  <Text>{box.name}</Text>
-                  <Autocomplete
-                    label="Place"
-                    placeholder="Pick a place"
-                    data={
-                      places?.map((place) => ({
-                        value: place.name || '',
-                        id: place.id,
-                      })) || []
-                    }
-                    defaultValue={
-                      places?.find((place) => place.id === box.placeId)?.name ||
-                      ''
-                    }
-                    onItemSubmit={(place) =>
-                      mutatePatchBox({ id: box.id, placeId: place.id })
-                    }
-                  />
-                  <Popover position="bottom" withArrow>
-                    <Popover.Target>
-                      <ActionIcon>
-                        <IconTrash color="red" />
-                      </ActionIcon>
-                    </Popover.Target>
-                    <Popover.Dropdown>
-                      <ActionIcon
-                        onClick={() => mutateDeleteBox({ id: box.id })}
-                      >
-                        <IconCheck color="red" />
-                      </ActionIcon>
-                    </Popover.Dropdown>
-                  </Popover>
-                </Group>
-              ))}
-            </Stack>
+            {!boxes?.length ? (
+              <Skeleton height={50} />
+            ) : (
+              <Stack>
+                {boxes.map((box) => (
+                  <BoxCard key={box.id} box={box} />
+                ))}
+              </Stack>
+            )}
           </Stack>
         </Shell>
       </main>
