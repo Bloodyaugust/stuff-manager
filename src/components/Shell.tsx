@@ -39,7 +39,11 @@ export default function Shell({ children }: Props) {
               <Title style={{ textTransform: 'capitalize' }}>
                 {router.route.replace('/', '')}
               </Title>
-              {!user && <Button onClick={() => signIn()}>Sign In</Button>}
+              {!user && (
+                <Button onClick={() => signIn('discord', { callbackUrl: '/' })}>
+                  Sign In
+                </Button>
+              )}
               {user && <Avatar src={user.image} />}
             </Group>
           </Center>
