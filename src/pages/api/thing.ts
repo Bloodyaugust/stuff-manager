@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma';
-import { Place } from '@prisma/client';
+import { Image, Thing } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import getSessionAndAccount from '@/lib/authEndpoint';
 
@@ -7,9 +7,14 @@ type Error = {
   message: string;
 };
 
+export type HydratedThing = {
+  image?: Image | null;
+  thing: Thing;
+};
+
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Place[] | Error>
+  res: NextApiResponse<HydratedThing[] | Error>
 ) {
   try {
     const { session, account } = await getSessionAndAccount(req, res);
@@ -20,22 +25,36 @@ export default async function handler(
     }
 
     if (req.method === 'GET') {
-      res.status(200).json(
-        await prisma.thing.findMany({
-          where: {
-            createdBy: account.id,
-          },
+      const things = await prisma.thing.findMany({
+        where: {
+          createdBy: account.id,
+        },
+      });
+      const hydratedThings = await Promise.all(
+        things.map(async (thing) => {
+          return {
+            thing,
+            image: await prisma.image.findFirst({
+              where: {
+                thingId: thing.id,
+              },
+            }),
+          };
         })
       );
+      res.status(200).json([...hydratedThings]);
       return;
     }
 
     if (req.method === 'POST') {
       const { name, boxId }: { name: string; boxId?: string } = req.body;
       res.status(200).json([
-        await prisma.thing.create({
-          data: { name, boxId, createdBy: account.id, updatedBy: account.id },
-        }),
+        {
+          thing: await prisma.thing.create({
+            data: { name, boxId, createdBy: account.id, updatedBy: account.id },
+          }),
+          image: null,
+        },
       ]);
       return;
     }
@@ -52,10 +71,17 @@ export default async function handler(
 
       if (updatingThing) {
         res.status(200).json([
-          await prisma.thing.update({
-            where: { id: id },
-            data: { name, boxId, updatedBy: account.id },
-          }),
+          {
+            thing: await prisma.thing.update({
+              where: { id: id },
+              data: { name, boxId, updatedBy: account.id },
+            }),
+            image: await prisma.image.findFirst({
+              where: {
+                thingId: updatingThing.id,
+              },
+            }),
+          },
         ]);
       } else {
         res.status(404).json({ message: 'Could not find thing' });
@@ -75,9 +101,12 @@ export default async function handler(
 
       if (deletingThing) {
         res.status(200).json([
-          await prisma.thing.delete({
-            where: { id: id },
-          }),
+          {
+            thing: await prisma.thing.delete({
+              where: { id: id },
+            }),
+            image: null,
+          },
         ]);
       } else {
         res.status(404).json({ message: 'Could not find thing' });

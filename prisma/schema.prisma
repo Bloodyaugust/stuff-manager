@@ -8,6 +8,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Image {
+  id        String   @id @default(cuid())
+  url       String
+  boxId     String?
+  thingId   String?
+  createdAt DateTime @default(now())
+  createdBy String
+}
+
 model Thing {
   id          String   @id @default(cuid())
   name        String?

@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma';
-import { Place } from '@prisma/client';
+import { Box } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import getSessionAndAccount from '@/lib/authEndpoint';
 
@@ -9,7 +9,7 @@ type Error = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Place[] | Error>
+  res: NextApiResponse<Box[] | Error>
 ) {
   try {
     const { session, account } = await getSessionAndAccount(req, res);

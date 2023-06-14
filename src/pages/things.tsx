@@ -3,13 +3,13 @@ import ThingCard from '@/components/ThingCard';
 import queryClient from '@/lib/query';
 import { createThing, getThings } from '@/lib/thing/queries';
 import { Button, Group, Input, Skeleton, Stack } from '@mantine/core';
-import { Thing } from '@prisma/client';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import Head from 'next/head';
 import { useState } from 'react';
+import { HydratedThing } from './api/thing';
 
 export default function Things() {
-  const { data: things }: { data: Thing[] | undefined } = useQuery({
+  const { data: things }: { data: HydratedThing[] | undefined } = useQuery({
     queryKey: ['things'],
     queryFn: getThings,
   });
@@ -62,7 +62,7 @@ export default function Things() {
             ) : (
               <Stack>
                 {things?.map((thing) => (
-                  <ThingCard key={thing.id} thing={thing} />
+                  <ThingCard key={thing.thing.id} thing={thing} />
                 ))}
               </Stack>
             )}

@@ -1,24 +1,28 @@
 import { getBoxes } from '@/lib/box/queries';
+import { postImage } from '@/lib/image/queries';
 import queryClient from '@/lib/query';
 import { deleteThing, patchThing } from '@/lib/thing/queries';
+import { HydratedThing } from '@/pages/api/thing';
 import {
   Accordion,
   ActionIcon,
   Autocomplete,
   Drawer,
+  FileInput,
   Group,
+  Image,
   Popover,
   Skeleton,
   Stack,
   Text,
 } from '@mantine/core';
-import { Box, Thing } from '@prisma/client';
+import { Box } from '@prisma/client';
 import { IconCheck, IconDots, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
 type Props = {
-  thing: Thing;
+  thing: HydratedThing;
 };
 
 export default function ThingCard({ thing }: Props) {
@@ -29,6 +33,12 @@ export default function ThingCard({ thing }: Props) {
     queryFn: getBoxes,
   });
 
+  const { mutate: mutatePostImage } = useMutation({
+    mutationFn: postImage,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['things'] });
+    },
+  });
   const { mutate: mutatePatchThing } = useMutation({
     mutationFn: patchThing,
     onSuccess: () => {
@@ -48,7 +58,7 @@ export default function ThingCard({ thing }: Props) {
 
   return (
     <Group align="end" position="apart">
-      <Text>{thing.name}</Text>
+      <Text>{thing.thing.name}</Text>
       <Autocomplete
         label="Box"
         placeholder="Pick a box"
@@ -58,9 +68,11 @@ export default function ThingCard({ thing }: Props) {
             id: box.id,
           })) || []
         }
-        defaultValue={boxes?.find((box) => box.id === thing.boxId)?.name || ''}
+        defaultValue={
+          boxes?.find((box) => box.id === thing.thing.boxId)?.name || ''
+        }
         onItemSubmit={(box) =>
-          mutatePatchThing({ id: thing.id, boxId: box.id })
+          mutatePatchThing({ id: thing.thing.id, boxId: box.id })
         }
       />
       <Group>
@@ -74,7 +86,9 @@ export default function ThingCard({ thing }: Props) {
             </ActionIcon>
           </Popover.Target>
           <Popover.Dropdown>
-            <ActionIcon onClick={() => mutateDeleteThing({ id: thing.id })}>
+            <ActionIcon
+              onClick={() => mutateDeleteThing({ id: thing.thing.id })}
+            >
               <IconCheck color="red" />
             </ActionIcon>
           </Popover.Dropdown>
@@ -83,20 +97,33 @@ export default function ThingCard({ thing }: Props) {
       <Drawer
         opened={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        title={thing.name}
+        title={thing.thing.name}
       >
         <Stack>
-          <Text>Name: {thing.name}</Text>
-          <Text>Description: {thing.description}</Text>
+          <Text>Name: {thing.thing.name}</Text>
+          <Text>Description: {thing.thing.description}</Text>
+          <FileInput
+            accept="image/png,image/jpeg"
+            onChange={(file) =>
+              mutatePostImage({ image: file, thingId: thing.thing.id })
+            }
+            label="Image"
+            placeholder="Click me"
+          />
+          <Image src={thing.image?.url} alt={thing.thing.name || ''} />
           <Accordion>
             <Accordion.Item value="audit">
               <Accordion.Control>Audit</Accordion.Control>
               <Accordion.Panel>
                 <Stack>
-                  <Text>Created By: {thing.createdBy}</Text>
-                  <Text>Created At: {thing.createdAt.toLocaleString()}</Text>
-                  <Text>Updated By: {thing.updatedBy}</Text>
-                  <Text>Updated At: {thing.updatedAt.toLocaleString()}</Text>
+                  <Text>Created By: {thing.thing.createdBy}</Text>
+                  <Text>
+                    Created At: {thing.thing.createdAt.toLocaleString()}
+                  </Text>
+                  <Text>Updated By: {thing.thing.updatedBy}</Text>
+                  <Text>
+                    Updated At: {thing.thing.updatedAt.toLocaleString()}
+                  </Text>
                 </Stack>
               </Accordion.Panel>
             </Accordion.Item>
