@@ -1,7 +1,8 @@
 import prisma from '@/lib/prisma';
-import { Box, Place, Thing } from '@prisma/client';
+import { Box, Place } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import getSessionAndAccount from '@/lib/authEndpoint';
+import { HydratedThing } from './thing';
 
 type Error = {
   message: string;
@@ -11,7 +12,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<
     | {
-        things: Thing[];
+        things: HydratedThing[];
         places: Place[];
         boxes: Box[];
       }
@@ -37,6 +38,18 @@ export default async function handler(
           },
         },
       });
+      const hydratedThings = await Promise.all(
+        things.map(async (thing) => {
+          return {
+            thing,
+            image: await prisma.image.findFirst({
+              where: {
+                thingId: thing.id,
+              },
+            }),
+          };
+        })
+      );
       const places = await prisma.place.findMany({
         where: {
           createdBy: account.id,
@@ -55,7 +68,7 @@ export default async function handler(
       });
 
       res.status(200).json({
-        things,
+        things: hydratedThings,
         places,
         boxes,
       });

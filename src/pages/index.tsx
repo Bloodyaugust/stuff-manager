@@ -13,9 +13,10 @@ import Head from 'next/head';
 import { useState } from 'react';
 import { search } from '@/lib/search/queries';
 import ThingCard from '@/components/ThingCard';
-import { Box, Place, Thing } from '@prisma/client';
+import { Box, Place } from '@prisma/client';
 import BoxCard from '@/components/BoxCard';
 import PlaceCard from '@/components/PlaceCard';
+import { HydratedThing } from './api/thing';
 
 export default function Home() {
   const [searchString, setSearchString] = useState<string>('');
@@ -60,8 +61,8 @@ export default function Home() {
                     </Accordion.Control>
                     <Accordion.Panel>
                       <Stack>
-                        {things.map((thing: Thing) => (
-                          <ThingCard key={thing.id} thing={thing} />
+                        {things.map((thing: HydratedThing) => (
+                          <ThingCard key={thing.thing.id} thing={thing} />
                         ))}
                       </Stack>
                     </Accordion.Panel>
