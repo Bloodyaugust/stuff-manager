@@ -57,8 +57,10 @@ export default function ThingCard({ thing }: Props) {
   }
 
   return (
-    <Group align="end" position="apart">
-      <Text>{thing.thing.name}</Text>
+    <Group align="end" position="apart" noWrap>
+      <Text truncate style={{ width: '33.33%' }}>
+        {thing.thing.name}
+      </Text>
       <Autocomplete
         label="Box"
         placeholder="Pick a box"
@@ -74,6 +76,7 @@ export default function ThingCard({ thing }: Props) {
         onItemSubmit={(box) =>
           mutatePatchThing({ id: thing.thing.id, boxId: box.id })
         }
+        style={{ width: '33.33%' }}
       />
       <Group>
         <ActionIcon>
@@ -97,7 +100,12 @@ export default function ThingCard({ thing }: Props) {
       <Drawer
         opened={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        title={thing.thing.name}
+        title={<Text truncate>{thing.thing.name}</Text>}
+        styles={{
+          title: {
+            width: '80%',
+          },
+        }}
       >
         <Stack>
           <Text>Name: {thing.thing.name}</Text>
