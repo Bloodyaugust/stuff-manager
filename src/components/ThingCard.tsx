@@ -109,8 +109,11 @@ export default function ThingCard({ thing }: Props) {
             }
             label="Image"
             placeholder="Click me"
+            capture
           />
-          <Image src={thing.image?.url} alt={thing.thing.name || ''} />
+          {thing.image?.url && (
+            <Image src={thing.image?.url} alt={thing.thing.name || ''} />
+          )}
           <Accordion>
             <Accordion.Item value="audit">
               <Accordion.Control>Audit</Accordion.Control>
