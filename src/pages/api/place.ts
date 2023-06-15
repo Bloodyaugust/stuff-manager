@@ -22,6 +22,11 @@ export default async function handler(
     if (req.method === 'GET') {
       res.status(200).json(
         await prisma.place.findMany({
+          orderBy: [
+            {
+              updatedAt: 'desc',
+            },
+          ],
           where: {
             createdBy: account.id,
           },

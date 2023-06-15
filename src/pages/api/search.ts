@@ -31,6 +31,11 @@ export default async function handler(
       const { search } = req.body;
 
       const things = await prisma.thing.findMany({
+        orderBy: [
+          {
+            updatedAt: 'desc',
+          },
+        ],
         where: {
           createdBy: account.id,
           name: {
@@ -51,6 +56,11 @@ export default async function handler(
         })
       );
       const places = await prisma.place.findMany({
+        orderBy: [
+          {
+            updatedAt: 'desc',
+          },
+        ],
         where: {
           createdBy: account.id,
           name: {
@@ -59,6 +69,11 @@ export default async function handler(
         },
       });
       const boxes = await prisma.box.findMany({
+        orderBy: [
+          {
+            updatedAt: 'desc',
+          },
+        ],
         where: {
           createdBy: account.id,
           name: {
