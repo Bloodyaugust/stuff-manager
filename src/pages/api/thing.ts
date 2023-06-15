@@ -26,6 +26,11 @@ export default async function handler(
 
     if (req.method === 'GET') {
       const things = await prisma.thing.findMany({
+        orderBy: [
+          {
+            updatedAt: 'desc',
+          },
+        ],
         where: {
           createdBy: account.id,
         },
