@@ -15,11 +15,13 @@ import {
   Skeleton,
   Stack,
   Text,
+  Textarea,
 } from '@mantine/core';
+import { useDebouncedState } from '@mantine/hooks';
 import { Box } from '@prisma/client';
 import { IconCheck, IconDots, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type Props = {
   thing: HydratedThing;
@@ -27,6 +29,7 @@ type Props = {
 
 export default function ThingCard({ thing }: Props) {
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+  const [description, setDescription] = useDebouncedState<string>('', 1000);
 
   const { data: boxes }: { data: Box[] | undefined } = useQuery({
     queryKey: ['boxes'],
@@ -51,6 +54,15 @@ export default function ThingCard({ thing }: Props) {
       queryClient.invalidateQueries({ queryKey: ['things'] });
     },
   });
+
+  useEffect(() => {
+    if (description !== thing.thing.description) {
+      mutatePatchThing({
+        id: thing.thing.id,
+        description,
+      });
+    }
+  }, [description, thing, mutatePatchThing]);
 
   if (!boxes?.length) {
     return <Skeleton height={50} />;
@@ -109,7 +121,13 @@ export default function ThingCard({ thing }: Props) {
       >
         <Stack>
           <Text>Name: {thing.thing.name}</Text>
-          <Text>Description: {thing.thing.description}</Text>
+          <Textarea
+            autosize
+            minRows={2}
+            placeholder="Description of the thing"
+            onChange={(e) => setDescription(e.currentTarget.value)}
+            defaultValue={thing.thing.description || ''}
+          />
           <FileInput
             accept="image/png,image/jpeg"
             onChange={(file) =>

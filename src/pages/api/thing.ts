@@ -60,7 +60,12 @@ export default async function handler(
     }
 
     if (req.method === 'PATCH') {
-      const { id, name, boxId }: { id: string; name?: string; boxId?: string } =
+      const {
+        id,
+        name,
+        boxId,
+        description,
+      }: { id: string; name?: string; boxId?: string; description?: string } =
         req.body;
       const updatingThing = await prisma.thing.findFirst({
         where: {
@@ -74,7 +79,7 @@ export default async function handler(
           {
             thing: await prisma.thing.update({
               where: { id: id },
-              data: { name, boxId, updatedBy: account.id },
+              data: { name, boxId, updatedBy: account.id, description },
             }),
             image: await prisma.image.findFirst({
               where: {

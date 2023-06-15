@@ -28,10 +28,12 @@ async function patchThing({
   id,
   name,
   boxId,
+  description,
 }: {
   id: string;
   name?: string;
   boxId?: string;
+  description?: string;
 }) {
   const response = await fetch('/api/thing', {
     method: 'PATCH',
@@ -42,6 +44,7 @@ async function patchThing({
       id,
       name,
       boxId,
+      description,
     }),
   });
 
