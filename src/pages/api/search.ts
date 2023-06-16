@@ -41,6 +41,9 @@ export default async function handler(
           name: {
             search,
           },
+          description: {
+            search,
+          },
         },
       });
       const hydratedThings = await Promise.all(
