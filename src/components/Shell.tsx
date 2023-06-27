@@ -18,7 +18,7 @@ import {
 } from '@mantine/core';
 import { ReactNode, useContext, useEffect, useState } from 'react';
 import { userContext } from './UserProvider';
-import { signIn } from 'next-auth/react';
+import { signIn, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { Workspace } from '@prisma/client';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -123,6 +123,9 @@ export default function Shell({ children }: Props) {
                     >
                       Create Workspace
                     </Menu.Item>
+                    <Divider />
+                    <Menu.Label>Account</Menu.Label>
+                    <Menu.Item onClick={() => signOut()}>Sign Out</Menu.Item>
                   </Menu.Dropdown>
                 </Menu>
               )}
