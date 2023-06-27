@@ -98,7 +98,7 @@ export default function Shell({ children }: Props) {
                   Sign In
                 </Button>
               )}
-              {user && workspaces && (
+              {user && workspaces && workspaces.length && (
                 <Menu>
                   <Menu.Target>
                     <Avatar src={user.image} />

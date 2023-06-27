@@ -19,7 +19,7 @@ import {
 } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
 import { Box } from '@prisma/client';
-import { IconCheck, IconDots, IconTrash } from '@tabler/icons-react';
+import { IconCheck, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
@@ -70,7 +70,7 @@ export default function ThingCard({ thing }: Props) {
 
   return (
     <Group align="end" position="apart" noWrap>
-      <Text truncate style={{ width: '33.33%' }}>
+      <Text truncate style={{ width: '33.33%' }} onClick={() => setDrawerOpen(true)}>
         {thing.thing.name}
       </Text>
       <Autocomplete
@@ -91,9 +91,6 @@ export default function ThingCard({ thing }: Props) {
         style={{ width: '33.33%' }}
       />
       <Group>
-        <ActionIcon>
-          <IconDots onClick={() => setDrawerOpen(true)} />
-        </ActionIcon>
         <Popover position="bottom" withArrow>
           <Popover.Target>
             <ActionIcon>
