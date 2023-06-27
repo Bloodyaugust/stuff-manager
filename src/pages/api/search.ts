@@ -27,6 +27,17 @@ export default async function handler(
       return;
     }
 
+    const workspace = await prisma.workspace.findFirst({
+      where: {
+        id: req.cookies.workspace as string,
+      },
+    });
+
+    if (!workspace) {
+      res.status(401).json({ message: 'Please select a workspace' });
+      return;
+    }
+
     if (req.method === 'POST') {
       const { search } = req.body;
 
@@ -37,7 +48,7 @@ export default async function handler(
           },
         ],
         where: {
-          createdBy: account.id,
+          workspaceId: workspace.id,
           name: {
             search,
           },
@@ -65,7 +76,7 @@ export default async function handler(
           },
         ],
         where: {
-          createdBy: account.id,
+          workspaceId: workspace.id,
           name: {
             search,
           },
@@ -78,7 +89,7 @@ export default async function handler(
           },
         ],
         where: {
-          createdBy: account.id,
+          workspaceId: workspace.id,
           name: {
             search,
           },

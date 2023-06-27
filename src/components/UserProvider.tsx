@@ -10,6 +10,7 @@ type UserContextType = {
     name?: string | null;
   };
   workspace?: string;
+  // eslint-disable-next-line no-unused-vars
   setWorkspace: (workspaceId: string) => void;
 };
 
