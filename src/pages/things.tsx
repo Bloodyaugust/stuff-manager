@@ -1,26 +1,18 @@
 import Shell from '@/components/Shell';
 import ThingCard from '@/components/ThingCard';
-import queryClient from '@/lib/query';
-import { createThing, getThings } from '@/lib/thing/queries';
+import { useCreateThing, useGetThings } from '@/lib/thing/queries';
 import { Button, Group, Input, Skeleton, Stack } from '@mantine/core';
-import { useMutation, useQuery } from '@tanstack/react-query';
 import Head from 'next/head';
 import { useState } from 'react';
 import { HydratedThing } from './api/thing';
 
 export default function Things() {
-  const { data: things }: { data: HydratedThing[] | undefined } = useQuery({
-    queryKey: ['things'],
-    queryFn: getThings,
-  });
+  const { data: things }: { data: HydratedThing[] | undefined } =
+    useGetThings();
 
   const [newThingName, setNewThingName] = useState<string>('');
-  const { mutate: mutateNewThing } = useMutation({
-    mutationFn: createThing,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['things'] });
-      setNewThingName('');
-    },
+  const { mutate: mutateNewThing } = useCreateThing(() => {
+    setNewThingName('');
   });
 
   return (

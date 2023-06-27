@@ -1,3 +1,10 @@
+import { useMutation, useQuery } from '@tanstack/react-query';
+import queryClient from '../query';
+
+const keys = {
+  all: ['things'] as const,
+};
+
 async function createThing({ name, boxId }: { name: string; boxId?: string }) {
   const response = await fetch('/api/thing', {
     method: 'POST',
@@ -13,6 +20,16 @@ async function createThing({ name, boxId }: { name: string; boxId?: string }) {
   return response.json();
 }
 
+export const useCreateThing = (onSuccess: () => void) => {
+  return useMutation({
+    mutationFn: createThing,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: keys.all });
+      onSuccess();
+    },
+  });
+};
+
 async function getThings() {
   const response = await fetch('/api/thing', {
     method: 'GET',
@@ -23,6 +40,12 @@ async function getThings() {
 
   return response.json();
 }
+
+export const useGetThings = () =>
+  useQuery({
+    queryKey: keys.all,
+    queryFn: getThings,
+  });
 
 async function patchThing({
   id,

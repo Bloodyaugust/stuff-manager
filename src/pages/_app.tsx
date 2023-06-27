@@ -5,6 +5,7 @@ import UserProvider from '@/components/UserProvider';
 import { QueryClientProvider } from '@tanstack/react-query';
 import queryClient from '@/lib/query';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 export default function App({
   Component,
@@ -27,6 +28,7 @@ export default function App({
         <SessionProvider session={session}>
           <UserProvider>
             <QueryClientProvider client={queryClient}>
+              <ReactQueryDevtools initialIsOpen={false} />
               <Component {...pageProps} />
             </QueryClientProvider>
           </UserProvider>

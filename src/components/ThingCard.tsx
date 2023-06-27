@@ -70,7 +70,11 @@ export default function ThingCard({ thing }: Props) {
 
   return (
     <Group align="end" position="apart" noWrap>
-      <Text truncate style={{ width: '33.33%' }} onClick={() => setDrawerOpen(true)}>
+      <Text
+        truncate
+        style={{ width: '33.33%' }}
+        onClick={() => setDrawerOpen(true)}
+      >
         {thing.thing.name}
       </Text>
       <Autocomplete
