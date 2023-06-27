@@ -92,7 +92,14 @@ export default async function handler(
       const updatingThing = await prisma.thing.findFirst({
         where: {
           id,
-          createdBy: account.id,
+          OR: [
+            {
+              createdBy: account.id,
+            },
+            {
+              workspaceId: workspace.id,
+            },
+          ],
         },
       });
 
@@ -122,7 +129,14 @@ export default async function handler(
       const deletingThing = await prisma.thing.findFirst({
         where: {
           id,
-          createdBy: account.id,
+          OR: [
+            {
+              createdBy: account.id,
+            },
+            {
+              workspaceId: workspace.id,
+            },
+          ],
         },
       });
 

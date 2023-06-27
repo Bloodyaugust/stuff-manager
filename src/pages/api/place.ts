@@ -66,7 +66,14 @@ export default async function handler(
       const deletingPlace = await prisma.place.findFirst({
         where: {
           id,
-          createdBy: account.id,
+          OR: [
+            {
+              createdBy: account.id,
+            },
+            {
+              workspaceId: workspace.id,
+            },
+          ],
         },
       });
 
