@@ -1,17 +1,17 @@
 import { getBoxes } from '@/lib/box/queries';
 import { postImage } from '@/lib/image/queries';
 import queryClient from '@/lib/query';
-import { deleteThing, patchThing } from '@/lib/thing/queries';
+import { deleteThing, usePatchThing } from '@/lib/thing/queries';
 import { HydratedThing } from '@/pages/api/thing';
 import {
   Accordion,
   ActionIcon,
-  Autocomplete,
   Drawer,
   FileInput,
   Group,
   Image,
   Popover,
+  Select,
   Skeleton,
   Stack,
   Text,
@@ -21,7 +21,7 @@ import { useDebouncedState } from '@mantine/hooks';
 import { Box } from '@prisma/client';
 import { IconCheck, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 type Props = {
   thing: HydratedThing;
@@ -30,11 +30,17 @@ type Props = {
 export default function ThingCard({ thing }: Props) {
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const [description, setDescription] = useDebouncedState<string>('', 1000);
+  const [boxSearchValue, setBoxSearchValue] = useState<string>('');
 
   const { data: boxes }: { data: Box[] | undefined } = useQuery({
     queryKey: ['boxes'],
     queryFn: getBoxes,
   });
+
+  const thingBox = useMemo(
+    () => boxes?.find((box) => box.id === thing.thing.boxId),
+    [boxes, thing.thing.boxId]
+  );
 
   const { mutate: mutatePostImage } = useMutation({
     mutationFn: postImage,
@@ -42,12 +48,8 @@ export default function ThingCard({ thing }: Props) {
       queryClient.invalidateQueries({ queryKey: ['things'] });
     },
   });
-  const { mutate: mutatePatchThing } = useMutation({
-    mutationFn: patchThing,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['things'] });
-    },
-  });
+  const { mutate: mutatePatchThing, isLoading: patchingThing } =
+    usePatchThing();
   const { mutate: mutateDeleteThing } = useMutation({
     mutationFn: deleteThing,
     onSuccess: () => {
@@ -77,22 +79,29 @@ export default function ThingCard({ thing }: Props) {
       >
         {thing.thing.name}
       </Text>
-      <Autocomplete
+      <Select
         label="Box"
         placeholder="Pick a box"
         data={
           boxes?.map((box) => ({
-            value: box.name || '',
-            id: box.id,
+            value: box.id,
+            label: box.name || '',
           })) || []
         }
-        defaultValue={
-          boxes?.find((box) => box.id === thing.thing.boxId)?.name || ''
-        }
-        onItemSubmit={(box) =>
-          mutatePatchThing({ id: thing.thing.id, boxId: box.id })
-        }
+        searchValue={boxSearchValue}
+        onSearchChange={setBoxSearchValue}
+        value={thingBox ? thingBox.id : undefined}
+        onChange={(boxId) => {
+          setBoxSearchValue('');
+          mutatePatchThing({
+            id: thing.thing.id,
+            boxId: boxId || '',
+          });
+        }}
+        readOnly={patchingThing}
         style={{ width: '33.33%' }}
+        searchable
+        clearable
       />
       <Group>
         <Popover position="bottom" withArrow>

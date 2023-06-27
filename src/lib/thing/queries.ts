@@ -20,12 +20,11 @@ async function createThing({ name, boxId }: { name: string; boxId?: string }) {
   return response.json();
 }
 
-export const useCreateThing = (onSuccess: () => void) => {
+export const useCreateThing = () => {
   return useMutation({
     mutationFn: createThing,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: keys.all });
-      onSuccess();
     },
   });
 };
@@ -73,6 +72,18 @@ async function patchThing({
 
   return response.json();
 }
+
+export const usePatchThing = () =>
+  useMutation({
+    mutationFn: patchThing,
+    onSuccess: ([newThing]) => {
+      queryClient.setQueryData(keys.all, (previous: any) =>
+        previous.map((thing: any) =>
+          thing.thing.id === newThing.thing.id ? newThing : thing
+        )
+      );
+    },
+  });
 
 async function deleteThing({ id }: { id: string }) {
   const response = await fetch(`/api/thing?id=${id}`, {

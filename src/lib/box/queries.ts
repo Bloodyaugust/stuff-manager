@@ -1,3 +1,9 @@
+import { useQuery } from '@tanstack/react-query';
+
+const keys = {
+  all: ['boxes'] as const,
+};
+
 async function createBox({
   name,
   placeId,
@@ -29,6 +35,12 @@ async function getBoxes() {
 
   return response.json();
 }
+
+export const useGetBoxes = () =>
+  useQuery({
+    queryFn: getBoxes,
+    queryKey: keys.all,
+  });
 
 async function patchBox({
   id,
