@@ -24,6 +24,7 @@ import { Workspace } from '@prisma/client';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createWorkspace, getWorkspaces } from '@/lib/workspace/queries';
 import queryClient from '@/lib/query';
+import Link from 'next/link';
 
 type Props = {
   children: ReactNode;
@@ -143,25 +144,25 @@ export default function Shell({ children }: Props) {
           <NavLink
             active={router.route === '/'}
             label="Home"
-            component="a"
+            component={Link}
             href="/"
           />
           <NavLink
             active={router.route === '/things'}
             label="Things"
-            component="a"
+            component={Link}
             href="/things"
           />
           <NavLink
             active={router.route === '/boxes'}
             label="Boxes"
-            component="a"
+            component={Link}
             href="/boxes"
           />
           <NavLink
             active={router.route === '/places'}
             label="Places"
-            component="a"
+            component={Link}
             href="/places"
           />
         </Navbar>
