@@ -19,6 +19,17 @@ export default async function handler(
       return;
     }
 
+    const workspace = await prisma.workspace.findFirst({
+      where: {
+        id: req.cookies.workspace as string,
+      },
+    });
+
+    if (!workspace) {
+      res.status(401).json({ message: 'Please select a workspace' });
+      return;
+    }
+
     if (req.method === 'GET') {
       res.status(200).json(
         await prisma.box.findMany({
@@ -28,7 +39,7 @@ export default async function handler(
             },
           ],
           where: {
-            createdBy: account.id,
+            workspaceId: workspace.id,
           },
         })
       );
@@ -41,6 +52,7 @@ export default async function handler(
         await prisma.box.create({
           data: {
             name,
+            workspaceId: workspace.id,
             placeId,
             createdBy: account.id,
             updatedBy: account.id,

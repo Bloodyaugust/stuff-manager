@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma';
-import { Place } from '@prisma/client';
+import { Workspace } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import getSessionAndAccount from '@/lib/authEndpoint';
 
@@ -9,7 +9,7 @@ type Error = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Place[] | Error>
+  res: NextApiResponse<Workspace[] | Error>
 ) {
   try {
     const { session, account } = await getSessionAndAccount(req, res);
@@ -19,27 +19,25 @@ export default async function handler(
       return;
     }
 
-    const workspace = await prisma.workspace.findFirst({
-      where: {
-        id: req.cookies.workspace as string,
-      },
-    });
-
-    if (!workspace) {
-      res.status(401).json({ message: 'Please select a workspace' });
-      return;
-    }
-
     if (req.method === 'GET') {
       res.status(200).json(
-        await prisma.place.findMany({
+        await prisma.workspace.findMany({
           orderBy: [
             {
               updatedAt: 'desc',
             },
           ],
           where: {
-            workspaceId: workspace.id,
+            OR: [
+              {
+                createdBy: account.id,
+              },
+              {
+                collaborators: {
+                  has: account.id,
+                },
+              },
+            ],
           },
         })
       );
@@ -47,39 +45,16 @@ export default async function handler(
     }
 
     if (req.method === 'POST') {
-      const { name } = req.body;
+      const { name }: { name: string } = req.body;
       res.status(200).json([
-        await prisma.place.create({
+        await prisma.workspace.create({
           data: {
             name,
-            workspaceId: workspace.id,
             createdBy: account.id,
             updatedBy: account.id,
           },
         }),
       ]);
-      return;
-    }
-
-    if (req.method === 'DELETE') {
-      const { id }: { id: string } = req.query as { id: string };
-      const deletingPlace = await prisma.place.findFirst({
-        where: {
-          id,
-          createdBy: account.id,
-        },
-      });
-
-      if (deletingPlace) {
-        res.status(200).json([
-          await prisma.place.delete({
-            where: { id: id },
-          }),
-        ]);
-      } else {
-        res.status(404).json({ message: 'Could not find place' });
-      }
-
       return;
     }
   } catch (e) {

@@ -29,6 +29,7 @@
     "next-auth": "^4.22.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-use-cookie": "^1.4.0",
     "typescript": "5.1.3"
   },
   "devDependencies": {

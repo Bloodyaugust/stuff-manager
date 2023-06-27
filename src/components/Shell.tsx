@@ -4,25 +4,70 @@ import {
   Burger,
   Button,
   Center,
+  Divider,
   Group,
   Header,
+  Input,
+  Menu,
+  Modal,
   NavLink,
   Navbar,
+  Stack,
   Title,
+  createStyles,
 } from '@mantine/core';
-import { ReactNode, useContext, useState } from 'react';
+import { ReactNode, useContext, useEffect, useState } from 'react';
 import { userContext } from './UserProvider';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import { Workspace } from '@prisma/client';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { createWorkspace, getWorkspaces } from '@/lib/workspace/queries';
+import queryClient from '@/lib/query';
 
 type Props = {
   children: ReactNode;
 };
 
+const useStyles = createStyles((theme) => ({
+  activeWorkspace: {
+    backgroundColor: theme.colors[theme.primaryColor][theme.fn.primaryShade()],
+  },
+}));
+
 export default function Shell({ children }: Props) {
+  const { classes, cx } = useStyles();
   const [navHidden, setNavHidden] = useState(true);
-  const { user } = useContext(userContext);
+  const [createWorkspaceModalOpen, setCreateWorkspaceModalOpen] =
+    useState<boolean>(false);
+  const [newWorkspaceName, setNewWorkspaceName] = useState<string>('');
+  const {
+    user,
+    workspace: activeWorkspace,
+    setWorkspace,
+  } = useContext(userContext);
   const router = useRouter();
+
+  const { data: workspaces }: { data: Workspace[] | undefined } = useQuery({
+    queryKey: ['workspaces'],
+    queryFn: getWorkspaces,
+    enabled: !!user,
+  });
+
+  const { mutate: mutateNewWorkspace } = useMutation({
+    mutationFn: createWorkspace,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workspaces'] });
+      setNewWorkspaceName('');
+      setCreateWorkspaceModalOpen(false);
+    },
+  });
+
+  useEffect(() => {
+    if (workspaces && !activeWorkspace) {
+      setWorkspace(workspaces[0].id);
+    }
+  }, [workspaces, activeWorkspace, setWorkspace]);
 
   return (
     <AppShell
@@ -53,7 +98,34 @@ export default function Shell({ children }: Props) {
                   Sign In
                 </Button>
               )}
-              {user && <Avatar src={user.image} />}
+              {user && workspaces && (
+                <Menu>
+                  <Menu.Target>
+                    <Avatar src={user.image} />
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    <Menu.Label>Workspaces</Menu.Label>
+                    {workspaces.map((workspace) => (
+                      <Menu.Item
+                        key={workspace.id}
+                        className={cx({
+                          [classes.activeWorkspace]:
+                            workspace.id === activeWorkspace,
+                        })}
+                        onClick={() => setWorkspace(workspace.id)}
+                      >
+                        {workspace.name}
+                      </Menu.Item>
+                    ))}
+                    <Divider />
+                    <Menu.Item
+                      onClick={() => setCreateWorkspaceModalOpen(true)}
+                    >
+                      Create Workspace
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
+              )}
             </Group>
           </Center>
         </Header>
@@ -93,6 +165,28 @@ export default function Shell({ children }: Props) {
       }
     >
       {children}
+      <Modal
+        opened={createWorkspaceModalOpen}
+        onClose={() => setCreateWorkspaceModalOpen(false)}
+        title="Create Workspace"
+      >
+        <Stack>
+          <Input
+            placeholder="Workspace name"
+            value={newWorkspaceName}
+            onChange={(e) => setNewWorkspaceName(e.target.value)}
+          />
+          <Button
+            onClick={() =>
+              mutateNewWorkspace({
+                name: newWorkspaceName,
+              })
+            }
+          >
+            Create Workspace
+          </Button>
+        </Stack>
+      </Modal>
     </AppShell>
   );
 }

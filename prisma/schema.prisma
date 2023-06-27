@@ -8,6 +8,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Workspace {
+  id            String   @id @default(cuid())
+  name          String?
+  collaborators String[]
+  createdAt     DateTime @default(now())
+  createdBy     String
+  updatedAt     DateTime @updatedAt
+  updatedBy     String
+}
+
 model Image {
   id        String   @id @default(cuid())
   url       String
@@ -19,6 +29,7 @@ model Image {
 
 model Thing {
   id          String   @id @default(cuid())
+  workspaceId String
   name        String?
   boxId       String?
   description String?
@@ -29,22 +40,24 @@ model Thing {
 }
 
 model Box {
-  id        String   @id @default(cuid())
-  name      String?
-  placeId   String?
-  createdAt DateTime @default(now())
-  createdBy String
-  updatedAt DateTime @updatedAt
-  updatedBy String
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String?
+  placeId     String?
+  createdAt   DateTime @default(now())
+  createdBy   String
+  updatedAt   DateTime @updatedAt
+  updatedBy   String
 }
 
 model Place {
-  id        String   @id @default(cuid())
-  name      String?
-  createdAt DateTime @default(now())
-  createdBy String
-  updatedAt DateTime @updatedAt
-  updatedBy String
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String?
+  createdAt   DateTime @default(now())
+  createdBy   String
+  updatedAt   DateTime @updatedAt
+  updatedBy   String
 }
 
 // START NEXT-AUTH
