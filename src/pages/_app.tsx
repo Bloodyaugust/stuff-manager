@@ -17,6 +17,11 @@ export default function App({
         withNormalizeCSS
         theme={{
           colorScheme: 'dark',
+          fontSizes: {
+            xs: '1rem',
+            sm: '1rem',
+            md: '1rem',
+          },
         }}
       >
         <SessionProvider session={session}>
