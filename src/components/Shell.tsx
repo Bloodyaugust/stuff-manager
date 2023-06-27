@@ -64,7 +64,7 @@ export default function Shell({ children }: Props) {
   });
 
   useEffect(() => {
-    if (workspaces && !activeWorkspace) {
+    if (workspaces && workspaces.length && !activeWorkspace) {
       setWorkspace(workspaces[0].id);
     }
   }, [workspaces, activeWorkspace, setWorkspace]);
